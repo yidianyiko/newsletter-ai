@@ -13,6 +13,7 @@ export interface SubscriberRepository {
   upsertPending(email: string, confirmationTokenHash: string, unsubscribeTokenHash: string): Promise<Subscriber>;
   getByConfirmationHash(hash: string): Promise<Subscriber | null>;
   getByUnsubscribeHash(hash: string): Promise<Subscriber | null>;
+  get(id: string): Promise<Subscriber | null>;
   update(id: string, patch: Partial<Subscriber>): Promise<Subscriber>;
   list(): Promise<Subscriber[]>;
 }
@@ -20,6 +21,7 @@ export interface SubscriberRepository {
 export interface DeliveryRepository {
   create(issueId: string, subscriberId: string, recipientEmail: string): Promise<Delivery>;
   listForIssue(issueId: string): Promise<Delivery[]>;
+  getByProviderMessageId(messageId: string): Promise<Delivery | null>;
   update(id: string, patch: Partial<Delivery>): Promise<Delivery>;
 }
 
@@ -75,6 +77,7 @@ export class MemoryDatabase implements NewsletterDatabase {
     },
     getByConfirmationHash: async (hash) => structuredClone([...this.subscriberRows.values()].find((row) => row.confirmationTokenHash === hash) ?? null),
     getByUnsubscribeHash: async (hash) => structuredClone([...this.subscriberRows.values()].find((row) => row.unsubscribeTokenHash === hash) ?? null),
+    get: async (id) => structuredClone(this.subscriberRows.get(id) ?? null),
     update: async (id, patch) => {
       const current = this.subscriberRows.get(id);
       if (!current) throw new Error("Subscriber not found");
@@ -95,6 +98,7 @@ export class MemoryDatabase implements NewsletterDatabase {
       return structuredClone(row);
     },
     listForIssue: async (issueId) => [...this.deliveryRows.values()].filter((row) => row.issueId === issueId).map((row) => structuredClone(row)),
+    getByProviderMessageId: async (messageId) => structuredClone([...this.deliveryRows.values()].find((row) => row.providerMessageId === messageId) ?? null),
     update: async (id, patch) => {
       const entry = [...this.deliveryRows.entries()].find(([, row]) => row.id === id);
       if (!entry) throw new Error("Delivery not found");

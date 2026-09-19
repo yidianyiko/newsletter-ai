@@ -13,6 +13,8 @@ const envSchema = z.object({
     RESEND_FROM: z.string().default("Letterly <onboarding@resend.dev>"),
     RESEND_WEBHOOK_SECRET: z.string().optional(),
     CRON_SECRET: z.string().optional(),
+    WEEKLY_REMINDER_DAY: z.coerce.number().int().min(0).max(6).default(1),
+    WEEKLY_REMINDER_HOUR_UTC: z.coerce.number().int().min(0).max(23).default(0),
   });
 
 export function readBuildSafeEnv(source: Record<string, string | undefined>) {

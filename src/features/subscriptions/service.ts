@@ -2,9 +2,10 @@ import type { SubscriberRepository } from "@/lib/db/repositories";
 import { createToken, hashToken } from "@/lib/domain/tokens";
 import type { EmailTransport } from "@/lib/email/transport";
 import { confirmationEmail } from "./email";
+import { verifySignedUnsubscribeToken } from "./signed-token";
 
 export class SubscriptionService {
-  constructor(private subscribers: SubscriberRepository, private mail: EmailTransport) {}
+  constructor(private subscribers: SubscriberRepository, private mail: EmailTransport, private unsubscribeSecret?: string) {}
 
   async requestSubscription(email: string, baseUrl: string): Promise<void> {
     const confirmationToken = createToken();
@@ -23,7 +24,8 @@ export class SubscriptionService {
   }
 
   async unsubscribe(token: string): Promise<"unsubscribed" | "invalid"> {
-    const subscriber = await this.subscribers.getByUnsubscribeHash(hashToken(token));
+    const signedId = this.unsubscribeSecret ? verifySignedUnsubscribeToken(token, this.unsubscribeSecret) : null;
+    const subscriber = signedId ? await this.subscribers.get(signedId) : await this.subscribers.getByUnsubscribeHash(hashToken(token));
     if (!subscriber) return "invalid";
     await this.subscribers.update(subscriber.id, { status: "unsubscribed", unsubscribedAt: new Date().toISOString() });
     return "unsubscribed";
