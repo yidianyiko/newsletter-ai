@@ -6,6 +6,10 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
 import { memoryDb } from "@/lib/db/repositories";
 import { IssueService } from "./service";
+import { generateIssueDraft } from "./generate";
+import { DemoDraftGenerator } from "@/lib/ai/provider";
+import { OpenAIDraftGenerator } from "@/lib/ai/openai";
+import { env } from "@/lib/env";
 
 const text = z.string().max(100_000);
 
@@ -42,5 +46,12 @@ export async function scheduleIssue(id: string, formData: FormData) {
   await requireAdmin();
   const date = z.coerce.date().parse(formData.get("scheduledAt"));
   await new IssueService(memoryDb.issues).schedule(id, date);
+  revalidatePath(`/admin/issues/${id}`);
+}
+
+export async function generateDraft(id: string) {
+  await requireAdmin();
+  const generator = env.OPENAI_API_KEY ? new OpenAIDraftGenerator(env.OPENAI_API_KEY) : new DemoDraftGenerator();
+  await generateIssueDraft(id, memoryDb, generator);
   revalidatePath(`/admin/issues/${id}`);
 }
