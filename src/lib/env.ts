@@ -1,9 +1,7 @@
 import { z } from "zod";
 
 const optionalUrl = z.string().url().optional();
-
-export function parseEnv(source: Record<string, string | undefined>) {
-  const base = z.object({
+const envSchema = z.object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
     NEXT_PUBLIC_SUPABASE_URL: optionalUrl,
@@ -15,7 +13,15 @@ export function parseEnv(source: Record<string, string | undefined>) {
     RESEND_FROM: z.string().default("Letterly <onboarding@resend.dev>"),
     RESEND_WEBHOOK_SECRET: z.string().optional(),
     CRON_SECRET: z.string().optional(),
-  }).parse(source);
+  });
+
+export function readBuildSafeEnv(source: Record<string, string | undefined>) {
+  const base = envSchema.parse(source);
+  return { ...base, demoMode: !base.SUPABASE_SERVICE_ROLE_KEY };
+}
+
+export function parseEnv(source: Record<string, string | undefined>) {
+  const base = envSchema.parse(source);
 
   if (base.NODE_ENV === "production") {
     for (const key of [
@@ -34,4 +40,4 @@ export function parseEnv(source: Record<string, string | undefined>) {
   return { ...base, demoMode: !base.SUPABASE_SERVICE_ROLE_KEY };
 }
 
-export const env = parseEnv(process.env);
+export const env = readBuildSafeEnv(process.env);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseEnv } from "./env";
+import { parseEnv, readBuildSafeEnv } from "./env";
 
 describe("parseEnv", () => {
   it("rejects production configuration without provider secrets", () => {
@@ -13,5 +13,9 @@ describe("parseEnv", () => {
 
   it("permits local demo mode without external provider credentials", () => {
     expect(parseEnv({ NODE_ENV: "development", NEXT_PUBLIC_APP_URL: "http://localhost:3000" }).demoMode).toBe(true);
+  });
+
+  it("can collect pages during a production build before runtime secrets are attached", () => {
+    expect(readBuildSafeEnv({ NODE_ENV: "production", NEXT_PUBLIC_APP_URL: "https://letter.test" }).demoMode).toBe(true);
   });
 });
