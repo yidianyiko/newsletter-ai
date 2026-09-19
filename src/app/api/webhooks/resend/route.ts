@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { memoryDb } from "@/lib/db/repositories";
+import { database } from "@/lib/db/database";
 import { env } from "@/lib/env";
 import { processEmailEvent, type NormalizedEmailEvent } from "@/features/delivery/events";
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     if (!supported.has(event.type as NormalizedEmailEvent["type"])) return NextResponse.json({ status: "ignored" });
     const messageId = (event.data as { email_id?: string }).email_id;
     if (!messageId) return NextResponse.json({ status: "ignored" });
-    const status = await processEmailEvent({ id: request.headers.get("svix-id")!, type: event.type as NormalizedEmailEvent["type"], messageId }, memoryDb);
+    const status = await processEmailEvent({ id: request.headers.get("svix-id")!, type: event.type as NormalizedEmailEvent["type"], messageId }, database);
     return NextResponse.json({ status });
   } catch {
     return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 });

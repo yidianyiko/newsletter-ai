@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { memoryDb } from "@/lib/db/repositories";
+import { database } from "@/lib/db/database";
 import { ConsoleEmailTransport } from "@/lib/email/transport";
 import { SubscriptionService } from "@/features/subscriptions/service";
 
 export default async function ConfirmPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const token = (await searchParams).token ?? "";
-  const result = token ? await new SubscriptionService(memoryDb.subscribers, new ConsoleEmailTransport()).confirmSubscription(token) : "invalid";
+  const result = token ? await new SubscriptionService(database.subscribers, new ConsoleEmailTransport()).confirmSubscription(token) : "invalid";
   return <ResultCard title={result === "confirmed" ? "订阅成功" : "链接无效或已过期"} body={result === "confirmed" ? "下一期 Newsletter 会准时出现在你的收件箱。" : "请重新提交订阅申请，获取新的确认邮件。"} />;
 }
 

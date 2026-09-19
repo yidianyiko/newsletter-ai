@@ -7,8 +7,8 @@ export interface NormalizedEmailEvent {
 }
 
 export async function processEmailEvent(event: NormalizedEmailEvent, db: NewsletterDatabase): Promise<"processed" | "duplicate" | "ignored"> {
-  if (db.processedEvents.has(event.id)) return "duplicate";
-  db.processedEvents.add(event.id);
+  if (await db.hasProcessedEvent(event.id)) return "duplicate";
+  await db.markProcessedEvent(event.id, event.type, event);
   const delivery = await db.deliveries.getByProviderMessageId(event.messageId);
   if (!delivery) return "ignored";
   if (event.type === "email.delivered") await db.deliveries.update(delivery.id, { status: "delivered" });

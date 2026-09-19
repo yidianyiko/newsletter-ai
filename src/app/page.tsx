@@ -1,39 +1,6 @@
-import Link from "next/link";
+import { HomeContent } from "./home-content";
 import { subscribe } from "./subscribe/actions";
 
 export default function HomePage() {
-  return (
-    <main className="min-h-screen px-5 py-6 md:px-10">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between border-b border-[var(--line)] pb-5">
-        <Link href="/" className="serif text-2xl font-bold tracking-tight">Letterly<span className="text-[var(--accent)]">.</span></Link>
-        <Link href="/admin" className="text-sm font-semibold text-[var(--muted)] transition hover:text-[var(--ink)]">管理后台 →</Link>
-      </nav>
-
-      <section className="mx-auto grid max-w-6xl gap-12 py-16 md:grid-cols-[1.2fr_.8fr] md:items-center md:py-28">
-        <div>
-          <p className="mb-6 inline-flex rounded-full border border-[var(--line)] bg-white/60 px-4 py-2 text-xs font-bold uppercase tracking-[.16em] text-[var(--moss)]">每周一封 · 由你决定主题</p>
-          <h1 className="serif max-w-3xl text-5xl font-bold leading-[.98] tracking-[-.045em] md:text-7xl">值得打开的 Newsletter，从你的想法开始。</h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--muted)]">我会把当周值得分享的链接、笔记和思考，整理成一封克制而有用的邮件。没有信息噪音，也不会擅自塞满你的收件箱。</p>
-
-          <form action={subscribe} className="mt-9 flex max-w-xl flex-col gap-3 sm:flex-row">
-            <label className="sr-only" htmlFor="email">邮箱</label>
-            <input id="email" name="email" type="email" required placeholder="你的邮箱地址" className="min-h-14 flex-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-6 outline-none transition focus:border-[var(--moss)] focus:ring-4 focus:ring-[#294d3d18]" />
-            <button className="min-h-14 rounded-full bg-[var(--accent)] px-7 font-bold text-white shadow-[0_8px_24px_#ef5b3f33] transition hover:-translate-y-0.5 hover:bg-[var(--accent-dark)]">免费订阅</button>
-          </form>
-          <p className="mt-3 text-xs text-[var(--muted)]">需通过确认邮件完成订阅 · 随时一键退订</p>
-        </div>
-
-        <aside className="relative mx-auto w-full max-w-md rotate-[1.5deg] rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-7 shadow-[0_28px_80px_#17201c18]">
-          <div className="mb-8 flex items-center justify-between border-b border-[var(--line)] pb-4 text-xs font-bold uppercase tracking-[.15em] text-[var(--muted)]"><span>Issue 001</span><span>This week</span></div>
-          <p className="serif text-3xl font-bold leading-tight">本周，分享真正值得记住的东西。</p>
-          <div className="my-7 h-px bg-[var(--line)]" />
-          <div className="space-y-5 text-sm leading-6 text-[var(--muted)]">
-            <p><b className="text-[var(--ink)]">01 / 一个新发现</b><br />从零散素材里提炼出清晰的观点。</p>
-            <p><b className="text-[var(--ink)]">02 / 一次实践</b><br />不仅告诉你发生了什么，也解释为什么重要。</p>
-            <p><b className="text-[var(--ink)]">03 / 一点思考</b><br />给忙碌的一周留下一点可继续探索的线索。</p>
-          </div>
-        </aside>
-      </section>
-    </main>
-  );
+  return <HomeContent subscribeAction={subscribe} />;
 }

@@ -32,6 +32,10 @@ export interface NewsletterDatabase {
   generationRuns: Array<{ issueId: string; status: "completed" | "failed"; output?: DraftContent; error?: string }>;
   processedEvents: Set<string>;
   jobRuns: Set<string>;
+  recordGenerationRun(run: { issueId: string; status: "completed" | "failed"; output?: DraftContent; error?: string }): Promise<void>;
+  hasProcessedEvent(id: string): Promise<boolean>;
+  markProcessedEvent(id: string, type: string, payload?: unknown): Promise<void>;
+  claimJob(key: string, type: string): Promise<boolean>;
 }
 
 function now() { return new Date().toISOString(); }
@@ -43,6 +47,15 @@ export class MemoryDatabase implements NewsletterDatabase {
   generationRuns: NewsletterDatabase["generationRuns"] = [];
   processedEvents = new Set<string>();
   jobRuns = new Set<string>();
+
+  async recordGenerationRun(run: NewsletterDatabase["generationRuns"][number]) { this.generationRuns.push(run); }
+  async hasProcessedEvent(id: string) { return this.processedEvents.has(id); }
+  async markProcessedEvent(id: string) { this.processedEvents.add(id); }
+  async claimJob(key: string) {
+    if (this.jobRuns.has(key)) return false;
+    this.jobRuns.add(key);
+    return true;
+  }
 
   issues: IssueRepository = {
     create: async (input) => {

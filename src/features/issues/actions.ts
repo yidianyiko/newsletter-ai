@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
-import { memoryDb } from "@/lib/db/repositories";
+import { database } from "@/lib/db/database";
 import { IssueService } from "./service";
 import { generateIssueDraft } from "./generate";
 import { DemoDraftGenerator } from "@/lib/ai/provider";
@@ -18,7 +18,7 @@ const text = z.string().max(100_000);
 
 export async function createIssue(formData: FormData) {
   await requireAdmin();
-  const issue = await memoryDb.issues.create({
+  const issue = await database.issues.create({
     topic: text.parse(formData.get("topic") ?? ""),
     sourceMaterial: text.parse(formData.get("sourceMaterial") ?? ""),
     writingInstructions: text.parse(formData.get("writingInstructions") ?? ""),
@@ -28,7 +28,7 @@ export async function createIssue(formData: FormData) {
 
 export async function saveIssue(id: string, formData: FormData) {
   await requireAdmin();
-  await new IssueService(memoryDb.issues).updateDraft(id, {
+  await new IssueService(database.issues).updateDraft(id, {
     topic: text.parse(formData.get("topic") ?? ""),
     sourceMaterial: text.parse(formData.get("sourceMaterial") ?? ""),
     writingInstructions: text.parse(formData.get("writingInstructions") ?? ""),
@@ -41,38 +41,38 @@ export async function saveIssue(id: string, formData: FormData) {
 
 export async function confirmIssue(id: string) {
   await requireAdmin();
-  await new IssueService(memoryDb.issues).confirm(id);
+  await new IssueService(database.issues).confirm(id);
   revalidatePath(`/admin/issues/${id}`);
 }
 
 export async function scheduleIssue(id: string, formData: FormData) {
   await requireAdmin();
   const date = z.coerce.date().parse(formData.get("scheduledAt"));
-  await new IssueService(memoryDb.issues).schedule(id, date);
+  await new IssueService(database.issues).schedule(id, date);
   revalidatePath(`/admin/issues/${id}`);
 }
 
 export async function generateDraft(id: string, formData: FormData) {
   await requireAdmin();
-  await new IssueService(memoryDb.issues).updateDraft(id, {
+  await new IssueService(database.issues).updateDraft(id, {
     topic: text.parse(formData.get("topic") ?? ""),
     sourceMaterial: text.parse(formData.get("sourceMaterial") ?? ""),
     writingInstructions: text.parse(formData.get("writingInstructions") ?? ""),
   });
   const generator = env.OPENAI_API_KEY ? new OpenAIDraftGenerator(env.OPENAI_API_KEY) : new DemoDraftGenerator();
-  await generateIssueDraft(id, memoryDb, generator);
+  await generateIssueDraft(id, database, generator);
   revalidatePath(`/admin/issues/${id}`);
 }
 
 export async function sendTestIssue(id: string) {
   await requireAdmin();
-  const issue = await memoryDb.issues.get(id);
+  const issue = await database.issues.get(id);
   if (!issue?.subject || !issue.bodyMarkdown) throw new Error("Save a subject and body before sending a test");
   await getEmailTransport().send({ to: env.ADMIN_EMAIL, subject: `[测试] ${issue.subject}`, html: renderMarkdownEmail(issue.bodyMarkdown) });
 }
 
 export async function sendIssueNow(id: string) {
   await requireAdmin();
-  await sendIssue(id, memoryDb, getEmailTransport(), env.NEXT_PUBLIC_APP_URL, env.CRON_SECRET ?? "local-development-secret");
+  await sendIssue(id, database, getEmailTransport(), env.NEXT_PUBLIC_APP_URL, env.CRON_SECRET ?? "local-development-secret");
   revalidatePath(`/admin/issues/${id}`);
 }
