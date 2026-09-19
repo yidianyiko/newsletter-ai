@@ -10,4 +10,9 @@ describe("HomePage", () => {
     expect(screen.getByRole("textbox", { name: /邮箱/i })).toHaveAttribute("type", "email");
     expect(screen.getByRole("button", { name: /免费订阅/i })).toBeInTheDocument();
   });
+
+  it("shows confirmation feedback after subscribing", () => {
+    render(<HomeContent subscribeAction={async () => {}} state="check-email" />);
+    expect(screen.getByRole("status")).toHaveTextContent("确认邮件已发送");
+  });
 });
