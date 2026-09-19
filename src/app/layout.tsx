@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Letterly — newsletters worth opening",
-  description: "Turn your notes into a polished weekly newsletter.",
+  title: "Letterly — 值得打开的 Newsletter",
+  description: "把值得分享的链接、笔记和思考，整理成一封克制而有用的周刊。",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
