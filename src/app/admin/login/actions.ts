@@ -11,7 +11,7 @@ export async function sendMagicLink(formData: FormData) {
   assertAdminEmail(email, env.ADMIN_EMAIL);
   if (env.demoMode) redirect("/admin");
   const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL!, env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-  const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/admin` } });
+  const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback` } });
   if (error) throw error;
   redirect("/admin/login?sent=1");
 }
