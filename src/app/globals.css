@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #17201c;
+  --muted: #65706a;
+  --paper: #f7f4ed;
+  --surface: #fffdf8;
+  --line: #dcd8ce;
+  --accent: #ef5b3f;
+  --accent-dark: #c6402b;
+  --moss: #294d3d;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(239, 91, 63, .10), transparent 28rem),
+    var(--paper);
+  font-family: Arial, Helvetica, sans-serif;
+}
+a { color: inherit; text-decoration: none; }
+button, input, textarea { font: inherit; }
+.serif { font-family: Georgia, "Times New Roman", serif; }
